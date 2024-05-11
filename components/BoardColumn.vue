@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router';
 const boardStore = useBoardStore();
 const router = useRouter();
 
-defineProps({
+const props = defineProps({
     column: {
         type: Object,
         required: true
@@ -17,6 +17,7 @@ defineProps({
 })
 
 const editNameState = ref(false);
+const newTaskName = ref('');
 
 function deleteColumn(columnIndex: number) {
     boardStore.deleteColumn(columnIndex);
@@ -25,6 +26,15 @@ function deleteColumn(columnIndex: number) {
 function goToTask(taskId: number){
     router.push(`/tasks/${taskId}`);
 }
+
+function addTask(){
+    boardStore.addTask({
+        columnIndex: props.columnIndex,
+        taskName: newTaskName.value
+    });
+    newTaskName.value = '';
+}
+
 </script>
 
 
@@ -49,5 +59,12 @@ function goToTask(taskId: number){
                 </UCard>
             </li>
         </ul>
+        <UInput 
+                  v-model="newTaskName"
+                    type="text" 
+                    placeholder="Add new Column" 
+                    icon="i-heroicons-plus-circle-solid" 
+                    @keyup.enter="addTask"
+                />
     </UContainer class="column">
 </template>

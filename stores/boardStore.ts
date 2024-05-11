@@ -12,7 +12,26 @@ export const useBoardStore = defineStore('boardStore', () => {
                 if (task) return task;
             }
         }
-    })
+    });
+
+    function addTask({ columnIndex , taskName } : any) {
+        board.value.columns[columnIndex].tasks.push({
+            id: Math.random().toString().replace("0.", ""),
+            name: taskName,
+            description: ''
+        })
+    }
+
+    function deleteTask(taskId : any) {
+        for (const column of board.value.columns) {
+            const taskIndex = column.tasks.findIndex(task => task.id === taskId)
+
+            if (taskIndex !== -1) {
+                column.tasks.splice(taskIndex, 1);
+                return ;
+            }
+        }
+    }
 
     function addColumn(columnName: string) {
         board.value.columns.push({
@@ -30,6 +49,8 @@ export const useBoardStore = defineStore('boardStore', () => {
         board,
         addColumn,
         deleteColumn,
-        getTask
+        getTask,
+        addTask,
+        deleteTask
     }
 })
