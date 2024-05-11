@@ -1,5 +1,7 @@
 <template>
-  <div>
-    <NuxtPage />
-  </div>
+  <Html class="trello">
+    <div>
+      <NuxtPage />
+    </div>
+  </Html>
 </template>
