@@ -43,14 +43,15 @@ function pickupTask(event: any, { fromColumnIndex, fromTaskIndex }: any) {
     event.dataTransfer.setData('from-task-index', fromTaskIndex)
 }
 
-function dropItem(event: any, toColumnIndex: any) {
+function dropItem(event: any, {toColumnIndex, toTaskIndex}: any) {
     const type = event.dataTransfer.getData('type');
     const fromColumnIndex = event.dataTransfer.getData('from-column-index');
     
     if(type === 'task') {
         const fromTaskIndex = event.dataTransfer.getData('from-task-index');
         boardStore.moveTask({
-            taskIndex: fromTaskIndex,
+            fromTaskIndex,
+            toTaskIndex,
             fromColumnIndex,
             toColumnIndex
         })
@@ -79,7 +80,7 @@ function pickupColumn(event : any, fromColumnIndex : any) {
     <UContainer class="column" 
     draggable="true" 
     @dragstart.self="pickupColumn($event, columnIndex)"
-    @dragenter.prevent @dragover.prevent @drop.stop="dropItem($event, columnIndex)">
+    @dragenter.prevent @dragover.prevent @drop.stop="dropItem($event, {toColumnIndex: columnIndex})">
          <div class="column-header mb-4">
         <div>
             <UInput v-if="editNameState" type="text" v-model="column.name" />
@@ -98,7 +99,9 @@ function pickupColumn(event : any, fromColumnIndex : any) {
                         fromColumnIndex: columnIndex,
                         fromTaskIndex: taskIndex
                     })
-                    ">
+                    "
+                    @drop.stop="dropItem($event, { toColumnIndex: columnIndex, toTaskIndex: taskIndex})"
+                    >
                     <strong>{{ task.name }}</strong>
                     <p>{{ task.description }}</p>
                 </UCard>
