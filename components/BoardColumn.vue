@@ -23,11 +23,11 @@ function deleteColumn(columnIndex: number) {
     boardStore.deleteColumn(columnIndex);
 }
 
-function goToTask(taskId: number){
+function goToTask(taskId: number) {
     router.push(`/tasks/${taskId}`);
 }
 
-function addTask(){
+function addTask() {
     boardStore.addTask({
         columnIndex: props.columnIndex,
         taskName: newTaskName.value
@@ -35,36 +35,53 @@ function addTask(){
     newTaskName.value = '';
 }
 
+function pickupTask(event: any, { fromColumnIndex, fromTaskIndex }: any) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.dropEffect = 'move'
+    event.dataTransfer.setData('from-column-index', fromColumnIndex)
+    event.dataTransfer.setData('from-task-index', fromTaskIndex)
+}
+
+function dropTask(event: any, toColumnIndex: any) {
+    const fromColumnIndex = event.dataTransfer.getData('from-column-index');
+    const fromTaskIndex = event.dataTransfer.getData('from-task-index');
+    boardStore.moveTask({
+        taskIndex: fromTaskIndex,
+        fromColumnIndex,
+        toColumnIndex
+    })
+}
+
 </script>
 
 
 <template>
-    <UContainer class="column">
-        <div class="column-header mb-4">
-            <div>
-                <UInput v-if="editNameState" type="text" v-model="column.name" />
-                <h2 v-else class="mb-4">{{ column.name }}</h2>
-            </div>
-            <div>
-                <UButton icon="i-heroicons-pencil-square" class="mr-2" @click="editNameState = !editNameState">Edit
-                </UButton>
-                <UButton icon="i-heroicons-trash" color="red" @click="deleteColumn(columnIndex)">Delete</UButton>
-            </div>
+    <UContainer class="column" @dragenter.prevent @dragover.prevent @drop.stop="dropTask($event, columnIndex)">
+         <div class="column-header mb-4">
+        <div>
+            <UInput v-if="editNameState" type="text" v-model="column.name" />
+            <h2 v-else class="mb-4">{{ column.name }}</h2>
+        </div>
+        <div>
+            <UButton icon="i-heroicons-pencil-square" class="mr-2" @click="editNameState = !editNameState">Edit
+            </UButton>
+            <UButton icon="i-heroicons-trash" color="red" @click="deleteColumn(columnIndex)">Delete</UButton>
+        </div>
         </div>
         <ul>
-            <li v-for="task in column.tasks" :key="task.id">
-                <UCard class="mb-4" @click="goToTask(task.id)">
+            <li v-for="(task, taskIndex) in column.tasks" :key="task.id">
+                <UCard class="mb-4" @click="goToTask(task.id)" draggable="true" @dragstart="
+                    pickupTask($event, {
+                        fromColumnIndex: columnIndex,
+                        fromTaskIndex: taskIndex
+                    })
+                    ">
                     <strong>{{ task.name }}</strong>
                     <p>{{ task.description }}</p>
                 </UCard>
             </li>
         </ul>
-        <UInput 
-                  v-model="newTaskName"
-                    type="text" 
-                    placeholder="Add new Column" 
-                    icon="i-heroicons-plus-circle-solid" 
-                    @keyup.enter="addTask"
-                />
+        <UInput v-model="newTaskName" type="text" placeholder="Add new Column" icon="i-heroicons-plus-circle-solid"
+            @keyup.enter="addTask" />
     </UContainer class="column">
 </template>
