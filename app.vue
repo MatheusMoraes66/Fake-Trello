@@ -1,7 +1,11 @@
+<script setup lang="ts">
+
+</script>
+
 <template>
   <Html class="trello">
-    <div>
+    <NuxtLayout>
       <NuxtPage />
-    </div>
+    </NuxtLayout>
   </Html>
 </template>
