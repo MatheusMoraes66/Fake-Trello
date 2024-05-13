@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   ssr: false,
   css: ['~/assets/css/vello.css'],
   devtools: { enabled: true },
-  modules: ['@nuxt/ui','@pinia/nuxt','@vueuse/nuxt',],
+  modules: ['@nuxt/ui','@pinia/nuxt','@vueuse/nuxt','@nuxtjs/color-mode'],
   colorMode: {
     preference: 'light'
   }
