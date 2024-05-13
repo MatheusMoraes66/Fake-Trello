@@ -1,17 +1,27 @@
 <script setup lang="ts">
 import { useBoardStore } from '../../../stores/boardStore';
 import { useRouter, useRoute } from 'vue-router';
+
+
 import { computed } from 'vue';
 
 const boardStore = useBoardStore();
 const route = useRoute();
 const router = useRouter();
+const toast = useToast()
+
 
 const task = computed(() => {
     return boardStore.getTask(route.params.id);
 })
 
 function deleteTask() {
+    toast.add({
+        title: 'Task deleted',
+        description: `${task.value.name} has been deleted`,
+        icon: 'i-heroicons-trash',
+        color: 'red'
+    })
     boardStore.deleteTask(route.params.id)
     router.push('/')
 }
