@@ -6,6 +6,7 @@ import type { Board } from "~/interfaces/board";
 export const useWorkSpaceStore = defineStore('workSpaceStore', () => {
     // States
     const workSpaces: WorkSpace[] = [];
+    const store = useStorage('workSpaces', workSpaces);
 
     // Getters
     // const getWorkspaces = computed(() => {
@@ -24,30 +25,36 @@ export const useWorkSpaceStore = defineStore('workSpaceStore', () => {
             boards: []
         }
 
-        workSpaces.push(workSpace);
+        store.value.push(workSpace);
     }
 
     function removeWorkSpace(workSpaceId: string) {
-        const workSpaceIndex = workSpaces.findIndex((workSpace) => workSpace.id === workSpaceId);
+        const workSpaceIndex = store.value.findIndex((workSpace) => workSpace.id === workSpaceId);
         if (workSpaceIndex !== -1) {
-            workSpaces.splice(workSpaceIndex, 1);
+            store.value.splice(workSpaceIndex, 1);
         }
     }
 
-    function addBoardToWorkSpace(workSpaceId: string, newBoard: Board) {
-        const workSpaceIndex = workSpaces.findIndex((workSpace) => workSpace.id === workSpaceId);
+    function addBoardToWorkSpace(workSpaceId: string, name: string, color: string) {
+        const newboard: Board = {
+            id :  Math.random().toString().replace("0.", ""),
+            name: name,
+            color: color,
+            columns: []
+        }
+        const workSpaceIndex = store.value.findIndex((workSpace) => workSpace.id === workSpaceId);
         if (workSpaceIndex !== -1) {
-          workSpaces[workSpaceIndex].boards.push(newBoard);
+            store.value[workSpaceIndex].boards.push(newboard);
         }
     }
 
     function removeBoardToWorkSpace(workSpaceId: string, boardId: string) {
-        const workSpaceIndex = workSpaces.findIndex((workSpace) => workSpace.id === workSpaceId);
+        const workSpaceIndex = store.value.findIndex((workSpace) => workSpace.id === workSpaceId);
         
         if (workSpaceIndex !== -1) {
             const boardIndex = workSpaces[workSpaceIndex].boards.findIndex((board) => board.id = boardId)
             if(boardIndex !== -1) {
-                workSpaces[workSpaceIndex].boards.splice(boardIndex, 1);
+                store.value[workSpaceIndex].boards.splice(boardIndex, 1);
             }
         }
     }
@@ -59,7 +66,7 @@ export const useWorkSpaceStore = defineStore('workSpaceStore', () => {
     // }
 
     return {
-        workSpaces,
+        store,
         addWorkSpace,
         removeWorkSpace,
         addBoardToWorkSpace,
