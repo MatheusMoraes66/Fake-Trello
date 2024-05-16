@@ -1,8 +1,7 @@
 <script setup lang="ts">
 const isOpen = ref(false);
 
-const people = [
-  { id: 1, label: 'Wade Cooper' },
+const people: any[] = [
 ]
 
 const selected = ref([]);
