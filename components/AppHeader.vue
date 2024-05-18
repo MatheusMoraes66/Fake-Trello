@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useMagicKeys } from '@vueuse/core';
+import { useRouter } from 'vue-router';
 const colorMode = useColorMode();
+
+const router = useRouter();
 
 const emit = defineEmits(['childEvent']);
 
@@ -32,7 +35,7 @@ function emitOpenModal() {
 
 <template>
     <div class="w-full h-16 flex max-md:justify-between justify-around p-2 border-b-2 border-neutral-500">
-        <div class=" flex items-center justify-start w-2/12 ">
+        <div class=" flex items-center justify-start w-2/12 cursor-default " @click="router.push('/')">
             <img src="~/assets/images/logo.svg" alt="Logo" width="50" />
             <h2 class="font-mono font-bold">Trello</h2>
         </div>
