@@ -2,8 +2,19 @@
 import { useBoardStore } from '#imports';
 import { useRouter } from 'vue-router';
 
-const boardStore = useBoardStore();
+const route = useRoute();
 const router = useRouter();
+
+const params = computed(() => {
+    const params = route.params.id.toString().split('-');
+    return {
+        workSpaceId: params[0],
+        boardId: params[1]
+    }
+})
+
+const workSpace = useWorkSpaceStore();
+
 
 const props = defineProps({
     column: {
@@ -20,7 +31,7 @@ const editNameState = ref(false);
 const newTaskName = ref('');
 
 function deleteColumn(columnIndex: number) {
-    boardStore.deleteColumn(columnIndex);
+    workSpace.deleteColumnFromBoard(params.value.workSpaceId, params.value.boardId, columnIndex);
 }
 
 function goToTask(taskId: number) {
@@ -28,10 +39,10 @@ function goToTask(taskId: number) {
 }
 
 function addTask() {
-    boardStore.addTask({
+    workSpace.addTaskFromColumn(params.value.workSpaceId, params.value.boardId, {
         columnIndex: props.columnIndex,
         taskName: newTaskName.value
-    });
+    })
     newTaskName.value = '';
 }
 
@@ -43,32 +54,38 @@ function pickupTask(event: any, { fromColumnIndex, fromTaskIndex }: any) {
     event.dataTransfer.setData('from-task-index', fromTaskIndex)
 }
 
-function dropItem(event: any, {toColumnIndex, toTaskIndex}: any) {
+function dropItem(event: any, { toColumnIndex, toTaskIndex }: any) {
     const type = event.dataTransfer.getData('type');
     const fromColumnIndex = event.dataTransfer.getData('from-column-index');
-    
-    if(type === 'task') {
+
+    if (type === 'task') {
         const fromTaskIndex = event.dataTransfer.getData('from-task-index');
-        boardStore.moveTask({
-            fromTaskIndex,
-            toTaskIndex,
-            fromColumnIndex,
-            toColumnIndex
-        })
+        workSpace.moveTaskToOtherColumn(
+            params.value.workSpaceId, params.value.boardId,
+            {
+                fromTaskIndex,
+                toTaskIndex,
+                fromColumnIndex,
+                toColumnIndex
+            }
+        )
     }
 
-    if(type === 'column') {
-        boardStore.moveColumn({
-            fromColumnIndex,
-            toColumnIndex
-        })
+    if (type === 'column') {
+        workSpace.changePositionOfColumn(
+            params.value.workSpaceId, params.value.boardId,
+            {
+                fromColumnIndex,
+                toColumnIndex
+            }
+        )
+
     }
 }
 
-function pickupColumn(event : any, fromColumnIndex : any) {
+function pickupColumn(event: any, fromColumnIndex: any) {
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.dropEffect = 'move';
-
     event.dataTransfer.setData('type', 'column');
     event.dataTransfer.setData('from-column-index', fromColumnIndex)
 }
@@ -77,20 +94,18 @@ function pickupColumn(event : any, fromColumnIndex : any) {
 
 
 <template>
-    <UContainer class="column" 
-    draggable="true" 
-    @dragstart.self="pickupColumn($event, columnIndex)"
-    @dragenter.prevent @dragover.prevent @drop.stop="dropItem($event, {toColumnIndex: columnIndex})">
-         <div class="column-header mb-4">
-        <div>
-            <UInput v-if="editNameState" type="text" v-model="column.name" />
-            <h2 v-else class="mb-4">{{ column.name }}</h2>
-        </div>
-        <div>
-            <UButton icon="i-heroicons-pencil-square" class="mr-2" @click="editNameState = !editNameState">Edit
-            </UButton>
-            <UButton icon="i-heroicons-trash" color="red" @click="deleteColumn(columnIndex)">Delete</UButton>
-        </div>
+    <UContainer class="column" draggable="true" @dragstart.self="pickupColumn($event, columnIndex)" @dragenter.prevent
+        @dragover.prevent @drop.stop="dropItem($event, { toColumnIndex: columnIndex })">
+        <div class="column-header mb-4">
+            <div>
+                <UInput v-if="editNameState" type="text" v-model="column.name" />
+                <h2 v-else class="mb-4">{{ column.name }}</h2>
+            </div>
+            <div>
+                <UButton icon="i-heroicons-pencil-square" class="mr-2" @click="editNameState = !editNameState">Edit
+                </UButton>
+                <UButton icon="i-heroicons-trash" color="red" @click="deleteColumn(columnIndex)">Delete</UButton>
+            </div>
         </div>
         <ul>
             <li v-for="(task, taskIndex) in column.tasks" :key="task.id">
@@ -99,9 +114,7 @@ function pickupColumn(event : any, fromColumnIndex : any) {
                         fromColumnIndex: columnIndex,
                         fromTaskIndex: taskIndex
                     })
-                    "
-                    @drop.stop="dropItem($event, { toColumnIndex: columnIndex, toTaskIndex: taskIndex})"
-                    >
+                    " @drop.stop="dropItem($event, { toColumnIndex: columnIndex, toTaskIndex: taskIndex })">
                     <strong>{{ task.name }}</strong>
                     <p>{{ task.description }}</p>
                 </UCard>
