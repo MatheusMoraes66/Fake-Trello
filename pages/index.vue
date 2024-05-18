@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useWorkSpaceStore } from '~/stores/workSpaceStore';
-
+import { useRouter } from 'vue-router';
 const isOpenWorkSpace = ref(false);
 const isBoards = ref(false);
 const selectWorkSpace = ref('');
+
+const router = useRouter();
 
 const workSpaceStore = useWorkSpaceStore();
 
@@ -28,6 +30,10 @@ function closeModalBoard() {
     isBoards.value = false;
 }
 
+function openBoard(workSpaceId: string, boardId: string){    
+    router.push(`/board/${workSpaceId}-${boardId}`);
+}
+
 </script>
 
 <template>
@@ -46,15 +52,16 @@ function closeModalBoard() {
                     {{ workSpace.name }}
                 </h2>
             </div>
-            <div class="grid lg:grid-cols-4 gap-4 sm:grid-cols-2 max-md:justify-center min-md:grid-cols-3 ">
+            <div class="grid gap-4 justify-center sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 ">
+                <!--grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6-->
                 <div v-for="board in workSpace.boards">
-                    <UCard :key="board.id" class="w-64 h-[8rem] flex items-center justify-center">
+                    <UCard :key="board.id" class="h-[8rem] flex items-center cursor-pointer justify-center hover:shadow-lg" @click="openBoard(workSpace.id, board.id)">
                     <div class="flex justify-center items-center gap-3">
                         <p class="text-xl">{{ board.name }}</p>
                     </div>
                 </UCard>
                 </div>
-                <UCard class="w-64 h-[8rem] flex items-center justify-center" @click="openModalBoard(workSpace.id)">
+                <UCard class="h-[8rem] flex items-center border-dashed cursor-pointer justify-center hover:shadow-lg" @click="openModalBoard(workSpace.id)">
                     <div class="flex justify-center items-center gap-3">
                         <UIcon name="i-heroicons-plus-circle-16-solid" dynamic />
                         <p class="text-xl">Criar novo quadro</p>
