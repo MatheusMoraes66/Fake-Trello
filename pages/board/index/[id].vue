@@ -1,22 +1,38 @@
 <script setup lang="ts">
-import { useBoardStore } from '~/stores/boardStore';
 
-const boardStore = useBoardStore();
+import { useRouter, useRoute } from 'vue-router';
+
+const workSpace = useWorkSpaceStore();
+
 const route = useRoute();
 const router = useRouter();
 
-const newColumnName = ref('')
+const params = computed(() => {
+    const params = route.params.id.toString().split('-');
+
+    return {
+        workSpaceId: params[0],
+        boardId: params[1]
+    }
+}) 
+
+const boardStore = computed(() => {
+    return  workSpace.getBoard(params.value.workSpaceId, params.value.boardId);
+})
+
+const newColumnName = ref('');
+
 const isModalOpen = computed(() => {
     return route.name === 'index-tasks-id'
 })
 
 function addColumn() {
-    boardStore.addColumn(newColumnName.value)
+    workSpace.addColumnToBoard(params.value.workSpaceId, params.value.boardId, newColumnName.value);
     newColumnName.value = ''
 }
 
 function closeModal() {
-    router.push('/')
+    router.push(`/board/${params.value.workSpaceId}-${params.value.boardId}`)
 }
 
 </script>
@@ -25,7 +41,7 @@ function closeModal() {
     <div class="board-wrapper">
         <main class="board">
             <BoardColumn
-                v-for="(column, columnIndex) in boardStore.board.columns" 
+                v-for="(column, columnIndex) in boardStore.columns" 
                 :key="column.name"
                 :column="column"
                 :columnIndex="columnIndex"
